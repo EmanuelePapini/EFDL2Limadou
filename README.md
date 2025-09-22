@@ -9,7 +9,8 @@ Details of the procedure are explained in XXXXXX
 ### Dependencies ###
 The package has been written and tested in python3.8, should be compatible with python <3.13, due to requirement from numba.
 
-Dependencies: scipy, numpy, numba, scikit-learn, matplotlib
+Dependencies: numpy, scipy, h5py, pandas, termcolor, 
+Optional: apexpy (if one wants the --add_mag_coords option)
 
 
 ### Install ###
