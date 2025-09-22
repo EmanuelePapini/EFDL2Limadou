@@ -23,6 +23,7 @@ input arguments
 Messenger package to stdout 
 """
 from termcolor import colored
+import sys
 import os
 import stat
 VIOLET = '\033[95m'
@@ -779,11 +780,11 @@ def add_column_to_recarray(recarray, new_column):
 
     return new_rec
 
-def add_QD_coords(df):
+def add_QD_coords(df,utc0):
     
-    mlat,mlon = convert_geo2qd(df.lat,df.lon,df.alt,df.index[0].to_pydatetime())
-    df['MAG_LAT'] = mlat
-    df['MAG_LON'] = mlon
+    mlat,mlon = convert_geo2qd(df.lat,df.lon,df.alt,utc0)
+    df['mag_lat'] = mlat
+    df['mag_lon'] = mlon
     #df = add_column_to_recarray(df,('Mlon',mlon))
     #df = add_column_to_recarray(df,('Mlat',mlat))
 ################################################################################
@@ -917,6 +918,10 @@ and if so, the algorithm updates the rotation between two jumps. If set, the alg
                     action="store_true")
     
     parser.set_defaults(constant_nskip=False)
+    
+    parser.add_argument("--overwrite_output", help="if set, overwrites output files.", action="store_true")
+    
+    parser.set_defaults(overwrite_output=False)
     return parser.parse_args()
 
 
@@ -997,6 +1002,32 @@ def efd01_load_L2Limadou(filpath,nskip_fixed = False,human_output = False,fill_m
     return df, aux, info
 
 
+from pathlib import Path
+
+def check_outfile(filepath, overwrite=False):
+    """
+    Checks if the given filepath is a valid file path.
+    Returns True if:
+      - the path does not exist and appears to be a file
+      - OR the path exists and is a file and overwrite is True
+    Returns False otherwise.
+    """
+    path = Path(filepath)
+
+    # If path exists
+    if path.exists():
+        if path.is_file():
+            return overwrite  # Only proceed if overwrite is allowed
+        else:
+            return False  # It's a directory or something else
+    else:
+        # Path doesn't exist — check if it looks like a file (has a suffix)
+        return bool(path.suffix)
+
+# Example usage
+can_proceed = check_outfile("/home/papini/output.h5", overwrite=True)
+
+
 if __name__ == '__main__':
     
     box("EFD-01 L2 -> L2Limadou data processor (Limadou Scienza+ project)")
@@ -1012,6 +1043,13 @@ if __name__ == '__main__':
     if len(outfile.split('/')) == 1:
         outfile = args.output_path+outfile+'_Limadou.h5'
 
+    if outfile[-3:] != '.h5': outfile = outfile+'.h5'
+    can_proceed = check_outfile(outfile,args.overwrite_output)
+    
+    if not can_proceed:
+        error("invalid name for: "+outfile+". File name not valid or a file with same name exists! You may want to rerun with '--overwrite_output'.")
+        sys.exit(1)  # Exit with a non-zero status to indicate failure
+
     info = parse_CSES_filename(filename)
    
     if info['DataProduct'] not in ['ULF','ELF']: 
@@ -1024,12 +1062,12 @@ if __name__ == '__main__':
     # N.B. Linear interpolation must be used otherwise it throws an error
     df, psds, aux = CSES_load(filename, path,\
         return_pandas = False,\
-        keep_verse_time = True,fill_missing='linear',with_mag_coords = args.add_mag_coords)
+        keep_verse_time = True,fill_missing='linear',with_mag_coords = True)
 
     #derotating data
     derotate_fields(df,info['DataProduct'],nskip_fixed=args.constant_nskip)
 
-    if args.add_mag_coords : add_QD_coords(df)
+    if args.add_mag_coords : add_QD_coords(df,aux['UTC'])
     #filling missing packets with desired value
 
     #saving data
