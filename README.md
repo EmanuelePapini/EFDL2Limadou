@@ -49,4 +49,4 @@ Would you use the EFDL2Limadou data processor for a scientific publication, plea
 
 ## References
 
-<a name="csespy">1) [E. Papini et al.](https://mdpi.com) Remote Sensing, XXX, pages XXX, 2025. doi: XXXXXX </a>
+<a name="csespy">1)</a> [E. Papini et al.](https://mdpi.com) Remote Sensing, XXX, pages XXX, 2025. doi: XXXXXX 
