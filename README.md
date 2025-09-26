@@ -16,7 +16,22 @@ Optional: apexpy (if one wants to use --add_mag_coords option)
 
 Simply download the files and install the dependencies.
 
-### Examples ###
+
+### Usage ###
+
+To process a Level 2 EFD-01 HDF5 file and generate a correcte HDF5 file, run:
+
+```bash
+python efd01_reprocesstoL2Limadou.py --input /input_folder/CSES_01_EFD_2_L02_A1_031190_20180826_095004_20180826_102510_000.h5 
+```
+
+The above command will save the corrected file in `./CSES_01_EFD_2_L02_A1_031190_20180826_095004_20180826_102510_000_Limadou.h5`.
+
+You can see all available options by running:
+
+```bash
+python efd01_reprocesstoL2Limadou.py --help
+```
 
 
 ### Contacts ###
@@ -27,9 +42,9 @@ Please feel free to contact us would you need any help and to report bug issues.
 
 ### Acknowledgements ###
 
-We acknowledge financial support from the Italian Space Agency under the contract ASI “LIMADOU Scienza+” n° 2020-31-HH.0
+We acknowledge financial support from the Italian Space Agency under the contract ASI “LIMADOU Scienza+” n° 2020-31-HH.0.
 
-Would you use the EFDL2Limadou data processor for a scientific publication, please add a link to this repository and properly reference our publication and the following zenodo link.
+Would you use the EFDL2Limadou data processor for a scientific publication, please add a link to this repository and properly reference the publication and the following zenodo link listed below.
 
 
 ## References

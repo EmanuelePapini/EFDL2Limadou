@@ -878,6 +878,16 @@ def parser():
 Additional Information
   - Output verse time is in microseconds to fix the discretization error due to the use of milliseconds for VERSE_TIME. 
     Output time is saved as 'DVERSE_TIME' (time since first datapoint) and VERSE_TIME0 (time of first data point) in the default format and as 'time' in the human_output format.
+        
+Examples
+  - Basic usage:
+      >> ./efd01_reprocesstoL2Limadou.py --input /input_folder/CSES_01_EFD_2_L02_A1_031190_20180826_095004_20180826_102510_000.h5 
+  
+      output file saved to: ./CSES_01_EFD_2_L02_A1_031190_20180826_095004_20180826_102510_000_Limadou.h5
+  - Save output in a different folder:
+      >> ./efd01_reprocesstoL2Limadou.py --input /input_folder/CSES_01_EFD_2_L02_A1_031190_20180826_095004_20180826_102510_000.h5 --output_path /path/to/output/
+      
+      output file saved to: /path/to/output/CSES_01_EFD_2_L02_A1_031190_20180826_095004_20180826_102510_000_Limadou.h5
         """
         )
     
@@ -886,26 +896,27 @@ Additional Information
     parser.add_argument(
         "--input", action="store", dest="input",
         metavar="[path/to/filename]", required=True,
-        help="path to input hdf5 file"
+        help="path to input hdf5 file."
     )
     
     #optional = parser.add_argument_group("optional arguments")
 
     parser.add_argument(
         "--output", action="store", dest='output',
-        metavar="[path/to/filename] or [filename]", required=False,
-        help="output hdf5 file name: can be either the filename or the full path. If only the filename is given then uses the path specified by --output_path (default ./)"
+        metavar="[path/to/filename] or [filename] (optional)", required=False,
+        help="output hdf5 file name: can be either the filename or the full path. If only the filename is given then uses the path specified by --output_path (default ./)" \
+        ". If not specified, output file is the same as input file with suffix '_Limadou.h5'."
         )
 
     parser.add_argument("--output_path",action="store",dest='output_path',
         metavar="[path_to_filename/] (optional)", required=False,default='./',
-        help="path to output hdf5 file, used if absolute path NOT specified in filename path in --output"
+        help="folder path to output hdf5 file, used if only filename (without any path, e.g. './') specified in --output"
         )
 
     parser.add_argument("--human_output", help="create output hdf5 file with self-explaining datasets",
                     action="store_true")
     
-    parser.add_argument("--add_mag_coords", help="adds geomagnetic coordinates",
+    parser.add_argument("--add_mag_coords", help="adds geomagnetic coordinates in the output file.",
                     action="store_true")
     #parser.add_argument("--keep_psd", help="keep PSD datasets in output",
     #                action="store_true")
@@ -1038,10 +1049,15 @@ if __name__ == '__main__':
     filepath = args.input.split('/')
     path = './' if len(filepath) == 1 else '/'.join(filepath[:-1])+'/'
     filename = filepath[-1]
+    
+    if args.output_path[-1] != '/': args.output_path+='/'
 
-    outfile = '.'.join(filename.split('.')[:-1]) if args.output is None else args.output
-    if len(outfile.split('/')) == 1:
-        outfile = args.output_path+outfile+'_Limadou.h5'
+    if args.output is None:
+        outfile = args.output_path+'.'.join(filename.split('.')[:-1])+'_Limadou.h5'
+    else:
+        outfile = args.output
+        if len(outfile.split('/')) == 1: 
+            outfile = args.output_path+outfile 
 
     if outfile[-3:] != '.h5': outfile = outfile+'.h5'
     can_proceed = check_outfile(outfile,args.overwrite_output)
